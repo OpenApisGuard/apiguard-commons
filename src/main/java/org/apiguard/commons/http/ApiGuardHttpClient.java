@@ -15,13 +15,13 @@ import org.springframework.util.StringUtils;
 
 public class ApiGuardHttpClient {
 	private HashMap<String, WebClient> webClients = new HashMap<String, WebClient>();
-	
+
 	public ApiGuardHttpClient(List<ApiVo> endpoints) {
 		if (endpoints == null || endpoints.isEmpty()) {
 			return;
 		}
-		
-		for(ApiVo a: endpoints) {
+
+		for (ApiVo a : endpoints) {
 			String downStreamUri = a.getFwdUri();
 			addWebClient(downStreamUri);
 		}
@@ -46,13 +46,15 @@ public class ApiGuardHttpClient {
 		return callService(webServiceUrl, null, null, acceptType);
 	}
 
-	public Response callService(String webServiceUrl, HashMap<String, String> headers, String acceptType) throws HttpClientException {
+	public Response callService(String webServiceUrl, HashMap<String, String> headers, String acceptType)
+			throws HttpClientException {
 		return callService(webServiceUrl, headers, null, acceptType);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Response callService(String webServiceUrl, HashMap<String, String> headers,
-			HashMap<String, Object> properties, String acceptType, Interceptor... interceptors) throws HttpClientException {
+			HashMap<String, Object> properties, String acceptType, Interceptor... interceptors)
+			throws HttpClientException {
 
 		WebClient wc = webClients.get(webServiceUrl);
 		if (wc == null) {
@@ -64,15 +66,19 @@ public class ApiGuardHttpClient {
 		// "client_nonexistantfile.properties");
 
 		// http signatures can be added through in/out interceptors
-		if (interceptors != null) {
-			WebClient.getConfig(wc).getOutInterceptors().addAll(new ArrayList(Arrays.asList(interceptors)));
+		try {
+			if (interceptors != null) {
+				WebClient.getConfig(wc).getOutInterceptors().addAll(new ArrayList(Arrays.asList(interceptors)));
+			}
+
+			if (StringUtils.isEmpty(acceptType)) {
+				wc.accept(acceptType);
+			}
+
+			Response response = wc.get();
+			return response;
+		} finally {
+			wc.reset();
 		}
-		
-		if (StringUtils.isEmpty(acceptType)) {
-			wc.accept(acceptType);
-		}
-		
-		Response response = wc.get();
-		return response;
 	}
 }
