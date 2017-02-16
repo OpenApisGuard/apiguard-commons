@@ -22,7 +22,7 @@ public class ApiGuardHttpClient {
 		}
 
 		for (ApiVo a : endpoints) {
-			String downStreamUri = a.getFwdUri();
+			String downStreamUri = a.getDownstreamUri();
 			addWebClient(downStreamUri);
 		}
 	}
@@ -46,11 +46,17 @@ public class ApiGuardHttpClient {
 		return callService(webServiceUrl, null, null, acceptType);
 	}
 
+	public Response callService(String webServiceUrl, HashMap<String, String> headers)
+			throws HttpClientException {
+		return callService(webServiceUrl, headers, null, null);
+	}
+
 	public Response callService(String webServiceUrl, HashMap<String, String> headers, String acceptType)
 			throws HttpClientException {
 		return callService(webServiceUrl, headers, null, acceptType);
 	}
 
+	//TODO: add headers
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Response callService(String webServiceUrl, HashMap<String, String> headers,
 			HashMap<String, Object> properties, String acceptType, Interceptor... interceptors)
