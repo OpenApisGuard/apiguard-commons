@@ -3,20 +3,23 @@ package org.apiguard.commons.utils;
 import org.jasypt.digest.PooledStringDigester;
 import org.jasypt.salt.RandomSaltGenerator;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.stereotype.Component;
 
-public class PasswordUtil {
+import javax.annotation.PostConstruct;
+
+@Component
+public class EncryptUtil {
 
 	private final static PooledStringDigester digester = new PooledStringDigester();
 
-	@Value("${password.algorithm}")
-	private static String algorithm = "MD5";
+	@Value("${basic.auth.password.algorithm}")
+	private String algorithm = "MD5";
 
-	@Value("${password.encryption.iteration}")
-	private static Integer iteration = 1234;
+	@Value("${basic.auth.encryption.iteration}")
+	private Integer iteration = 1234;
 
-	static {
+	@PostConstruct
+	private void setup() {
 		int cores = Runtime.getRuntime().availableProcessors();
 		digester.setPoolSize(cores);
 		digester.setAlgorithm(algorithm);
@@ -24,14 +27,14 @@ public class PasswordUtil {
 
 		RandomSaltGenerator saltGenerator = new RandomSaltGenerator();
 		digester.setSaltGenerator(saltGenerator);
-		digester.setSaltSizeBytes(16);
+		digester.setSaltSizeBytes(32);
 	}
 
-	public static String getEncryptedPassword(String password) {
+	public static String getEncryptedString(String password) {
 		return digester.digest(password);
 	}
 
-	public static boolean verifyPassword(String inputPassword, String encryptedPassword) {
+	public static boolean verify(String inputPassword, String encryptedPassword) {
 		return digester.matches(inputPassword, encryptedPassword);
 	}
 
