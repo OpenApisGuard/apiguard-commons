@@ -37,6 +37,13 @@ public class EncryptUtilTest {
 	}
 
 	@Test
+	public void verifyPasswordTest2() {
+		String inputPassword = "helloworld";
+		String encryptedPassword = EncryptUtil.getEncryptedString(inputPassword);
+		Assert.assertTrue(EncryptUtil.verify("helloworld", encryptedPassword));
+	}
+
+	@Test
 	public void verifyInvalidPasswordTest() {
 		String inputPassword = "abc123";
 		String encryptedPassword = EncryptUtil.getEncryptedString(inputPassword);
